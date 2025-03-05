@@ -1,0 +1,33 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Une API de Personnage D&D",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "npx kill-port 3000 && nodemon server.js",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sebastien-malo-jean/H25-41F_Library.git"
+  },
+  "author": "Sébastien Malo Jean",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sebastien-malo-jean/H25-41F_Library/issues"
+  },
+  "homepage": "https://github.com/sebastien-malo-jean/H25-41F_Library#readme",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-validator": "^7.2.1",
+    "firebase-admin": "^13.1.0",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
