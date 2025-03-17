@@ -13,33 +13,41 @@ const validId = [
 ];
 let validations = [
   check("name").trim().notEmpty().withMessage("Le nom est requis."),
-  check("genre")
+  check("gender")
     .trim()
     .notEmpty()
     .isLowercase()
     .withMessage("Le genre est requis."),
   check("class").trim().notEmpty().withMessage("La classe est requis."),
   check("race").trim().notEmpty().withMessage("La race est requis."),
-  check("alignement")
+  check("alignment.ethic")
     .trim()
     .notEmpty()
-    .withMessage("L'alignement' est requis."),
-  check("Traits.PersonalityTraits")
+    .withMessage("L'alignement ethic est requis."),
+  check("alignment.moral")
     .trim()
     .notEmpty()
-    .withMessage("Les Traits de personalités sont requis."),
-  check("Traits.Ideals")
+    .withMessage("L'alignement moral est requis."),
+  check("traits.personalityTraits")
     .trim()
     .notEmpty()
-    .withMessage("Les Ideaux sont requis."),
-  check("Traits.Bonds")
+    .withMessage("Les traits de personalités sont requis."),
+  check("description")
     .trim()
     .notEmpty()
-    .withMessage("Les Obligations sont requis."),
-  check("Traits.Flaws")
+    .withMessage("Une description est requise."),
+  check("traits.ideals")
     .trim()
     .notEmpty()
-    .withMessage("Les Défauts sont requis."),
+    .withMessage("Les ideaux sont requis."),
+  check("traits.bonds")
+    .trim()
+    .notEmpty()
+    .withMessage("Les obligations sont requis."),
+  check("traits.flaws")
+    .trim()
+    .notEmpty()
+    .withMessage("Les défauts sont requis."),
   check("statistics.strength")
     .trim()
     .notEmpty()
