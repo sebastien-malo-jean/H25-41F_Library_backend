@@ -90,7 +90,7 @@ router.get(
     }
     try {
       let {
-        limit = 10,
+        limit = 100,
         start = 0,
         orderBy = "name",
         orderDirection = "asc",
