@@ -89,6 +89,7 @@ router.get(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
+
     try {
       let {
         limit = 100,
@@ -105,12 +106,17 @@ router.get(
       start = Number(start);
 
       let query = db.collection("characters");
-      console.log("Filtre actif - charVoc:", charVoc);
-      // Appliquer les filtres dynamiquement
+
+      // Validation du filtre charVoc
       if (charVoc) {
         charVoc = charVoc.toLowerCase();
+        const vocations = ["npc", "player", "monster"];
+        if (!vocations.includes(charVoc)) {
+          return res.status(400).json({ error: "Vocation invalide." });
+        }
         query = query.where("charVoc", "==", charVoc);
       }
+
       if (gender) query = query.where("gender", "==", gender);
       if (characterClass) query = query.where("class", "==", characterClass);
       if (race) query = query.where("race", "==", race);
@@ -123,10 +129,14 @@ router.get(
       docRefs.forEach((doc) => {
         characters.push({ id: doc.id, ...doc.data() });
       });
+
       console.log("Personnages trouvés :", characters);
       return res.status(200).json(characters);
     } catch (error) {
-      console.error("Erreur lors de la récupération des personnages :", error);
+      console.error(
+        "Erreur lors de la récupération des personnages :",
+        error.message
+      );
       return res
         .status(500)
         .json({ error: "Erreur lors de la récupération des personnages." });
