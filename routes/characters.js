@@ -200,7 +200,7 @@ vocations.forEach((vocation) => {
   router.get(
     `/vocations/${vocation}`,
     [
-      check("orderBy").escape().trim().optional().isIn(charVoc),
+      check("orderBy").escape().trim().optional(),
       check("orderDirection").escape().trim().optional().isIn(["asc", "desc"]),
     ],
     async (req, res) => {
