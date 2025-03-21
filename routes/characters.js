@@ -109,7 +109,7 @@ router.get(
 
       // Validation des filtres
       const validVocations = ["npc", "player", "monster"];
-      const validGenders = ["male", "female", "unknown"];
+      const validGenders = ["man", "woman", "unknown"];
       const validClasses = [
         "Barbare",
         "Barde",
