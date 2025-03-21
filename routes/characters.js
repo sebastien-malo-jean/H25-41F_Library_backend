@@ -217,9 +217,9 @@ vocations.forEach((vocation) => {
         } = req.query;
 
         limit = Number(limit);
-        start = Number(limit);
+        start = Number(start);
 
-        if (req.query.orderBy && !statistics.includes(req.query.orderBy)) {
+        if (req.query.orderBy && !charVoc.includes(req.query.orderBy)) {
           return res.status(400).json({ msg: "Champ orderBy invalide" });
         }
         if (!["asc", "desc"].includes(orderDirection)) {
