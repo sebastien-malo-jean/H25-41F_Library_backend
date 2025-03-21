@@ -107,19 +107,71 @@ router.get(
 
       let query = db.collection("characters");
 
-      // Validation du filtre charVoc
+      // Validation des filtres
+      const validVocations = ["npc", "player", "monster"];
+      const validGenders = ["male", "female", "unknown"];
+      const validClasses = [
+        "Barbare",
+        "Barde",
+        "Chaman",
+        "Druide",
+        "Ensorceleur",
+        "Guerrier",
+        "Magicien",
+        "Moine",
+        "Paladin",
+        "Prêtre",
+        "Rôdeur",
+        "Roublard",
+      ];
+      const validRaces = [
+        "Humain",
+        "Aasimar",
+        "Thiefelin",
+        "Genasi",
+        "Elfe-des-Bois",
+        "Elfe-Sauvage",
+        "Nain",
+        "Duergar",
+        "Hobbit",
+        "Gnome",
+        "Demi-Elfe",
+        "Demi-Orque",
+        "Orque",
+        "Ogre",
+        "Gobelin",
+        "Kobold",
+        "Yuan-ti",
+      ];
+
       if (charVoc) {
         charVoc = charVoc.toLowerCase();
-        const vocations = ["npc", "player", "monster"];
-        if (!vocations.includes(charVoc)) {
+        if (!validVocations.includes(charVoc)) {
           return res.status(400).json({ error: "Vocation invalide." });
         }
         query = query.where("charVoc", "==", charVoc);
       }
 
-      if (gender) query = query.where("gender", "==", gender);
-      if (characterClass) query = query.where("class", "==", characterClass);
-      if (race) query = query.where("race", "==", race);
+      if (gender) {
+        if (!validGenders.includes(gender)) {
+          return res.status(400).json({ error: "Genre invalide." });
+        }
+        query = query.where("gender", "==", gender);
+      }
+
+      if (characterClass) {
+        if (!validClasses.includes(characterClass)) {
+          return res.status(400).json({ error: "Classe invalide." });
+        }
+        query = query.where("class", "==", characterClass);
+      }
+
+      if (race) {
+        if (!validRaces.includes(race)) {
+          return res.status(400).json({ error: "Race invalide." });
+        }
+        query = query.where("race", "==", race);
+      }
 
       query = query.orderBy(orderBy, orderDirection).offset(start).limit(limit);
 
@@ -143,6 +195,7 @@ router.get(
     }
   }
 );
+
 /**
  * route pour voir la liste de tous les personnages trier par les statistiques
  */
