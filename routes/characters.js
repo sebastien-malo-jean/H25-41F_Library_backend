@@ -212,7 +212,7 @@ vocations.forEach((vocation) => {
         let {
           limit = 10,
           start = 0,
-          orderBy = `vocations.${vocation}`,
+          orderBy = `charVoc.${vocation}`,
           orderDirection = "desc",
         } = req.query;
 
