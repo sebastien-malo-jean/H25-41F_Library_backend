@@ -94,31 +94,38 @@ router.get(
         start = 0,
         orderBy = "name",
         orderDirection = "asc",
+        charVoc,
+        gender,
+        class: characterClass,
+        race,
       } = req.query;
+
       limit = Number(limit);
       start = Number(start);
 
-      const characters = [];
+      let query = db.collection("characters");
 
-      const docRefs = await db
-        .collection("characters")
-        .orderBy(orderBy, orderDirection)
-        .offset(start)
-        .limit(limit)
-        .get();
+      // Appliquer les filtres dynamiquement
+      if (charVoc) query = query.where("charVoc", "==", charVoc);
+      if (gender) query = query.where("gender", "==", gender);
+      if (characterClass) query = query.where("class", "==", characterClass);
+      if (race) query = query.where("race", "==", race);
+
+      query = query.orderBy(orderBy, orderDirection).offset(start).limit(limit);
+
+      const characters = [];
+      const docRefs = await query.get();
 
       docRefs.forEach((doc) => {
-        const data = doc.data();
-        const character = { id: doc.id, ...data };
-        characters.push(character);
+        characters.push({ id: doc.id, ...doc.data() });
       });
 
       return res.status(200).json(characters);
     } catch (error) {
-      console.error("Erreur lors de la récupération du personnage :", error);
+      console.error("Erreur lors de la récupération des personnages :", error);
       return res
         .status(500)
-        .json({ error: "Erreur lors de la récupération du personnage." });
+        .json({ error: "Erreur lors de la récupération des personnages." });
     }
   }
 );
