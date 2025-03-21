@@ -194,6 +194,65 @@ statistics.forEach((statistic) => {
   );
 });
 
+let vocations = ["npc", "player", "monster"];
+
+vocations.forEach((vocation) => {
+  router.get(
+    `/vocations/${vocation}`,
+    [
+      check("orderBy").escape().trim().optional().isIn(charVoc),
+      check("orderDirection").escape().trim().optional().isIn(["asc", "desc"]),
+    ],
+    async (req, res) => {
+      const result = validationResult(req);
+      if (!result.isEmpty()) {
+        return res.status(400).json({ msg: "Données invalides" });
+      }
+      try {
+        let {
+          limit = 10,
+          start = 0,
+          orderBy = `vocations.${vocation}`,
+          orderDirection = "desc",
+        } = req.query;
+
+        limit = Number(limit);
+        start = Number(limit);
+
+        if (req.query.orderBy && !statistics.includes(req.query.orderBy)) {
+          return res.status(400).json({ msg: "Champ orderBy invalide" });
+        }
+        if (!["asc", "desc"].includes(orderDirection)) {
+          return res.status(400).json({ msg: "Direction de tri invalide" });
+        }
+        console.log(`Tri par : ${orderBy}, ${orderDirection}`);
+
+        const characters = [];
+        const docRefs = await db
+          .collection("characters")
+          .orderBy(orderBy, orderDirection)
+          .offset(start)
+          .limit(limit)
+          .get();
+
+        docRefs.forEach((doc) => {
+          const data = doc.data();
+          characters.push({ id: doc.id, ...data });
+        });
+
+        return res.status(200).json(characters);
+      } catch (error) {
+        console.error(
+          "Erreur lors de la récupération des personnages :",
+          error
+        );
+        return res
+          .status(500)
+          .json({ error: "Erreur lors de la récupération des personnages." });
+      }
+    }
+  );
+});
 /**
  * route pour trouver le personnage avec le id
  */
