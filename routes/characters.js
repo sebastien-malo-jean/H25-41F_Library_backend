@@ -197,61 +197,42 @@ statistics.forEach((statistic) => {
 let vocations = ["npc", "player", "monster"];
 
 vocations.forEach((vocation) => {
-  router.get(
-    `/vocations/${vocation}`,
-    [
-      check("orderBy").escape().trim().optional(),
-      check("orderDirection").escape().trim().optional().isIn(["asc", "desc"]),
-    ],
-    async (req, res) => {
-      const result = validationResult(req);
-      if (!result.isEmpty()) {
-        return res.status(400).json({ msg: "Données invalides" });
+  router.get(`/vocations/${vocation}`, async (req, res) => {
+    try {
+      let { limit = 10, start = 0, orderDirection = "desc" } = req.query;
+
+      limit = Number(limit);
+      start = Number(start);
+
+      if (!["asc", "desc"].includes(orderDirection)) {
+        return res.status(400).json({ msg: "Direction de tri invalide" });
       }
-      try {
-        let {
-          limit = 10,
-          start = 0,
-          orderBy = `charVoc.${vocation}`,
-          orderDirection = "desc",
-        } = req.query;
 
-        limit = Number(limit);
-        start = Number(start);
+      console.log(
+        `Filtre: charVoc = ${vocation}, Tri: ${orderDirection}, Limite: ${limit}, Départ: ${start}`
+      );
 
-        if (req.query.orderBy && !charVoc.includes(req.query.orderBy)) {
-          return res.status(400).json({ msg: "Champ orderBy invalide" });
-        }
-        if (!["asc", "desc"].includes(orderDirection)) {
-          return res.status(400).json({ msg: "Direction de tri invalide" });
-        }
-        console.log(`Tri par : ${orderBy}, ${orderDirection}`);
+      const characters = [];
+      const docRefs = await db
+        .collection("characters")
+        .where("charVoc", "==", vocation) // Filtrer uniquement par charVoc
+        .orderBy("charVoc", orderDirection)
+        .offset(start)
+        .limit(limit)
+        .get();
 
-        const characters = [];
-        const docRefs = await db
-          .collection("characters")
-          .orderBy(orderBy, orderDirection)
-          .offset(start)
-          .limit(limit)
-          .get();
+      docRefs.forEach((doc) => {
+        characters.push({ id: doc.id, ...doc.data() });
+      });
 
-        docRefs.forEach((doc) => {
-          const data = doc.data();
-          characters.push({ id: doc.id, ...data });
-        });
-
-        return res.status(200).json(characters);
-      } catch (error) {
-        console.error(
-          "Erreur lors de la récupération des personnages :",
-          error
-        );
-        return res
-          .status(500)
-          .json({ error: "Erreur lors de la récupération des personnages." });
-      }
+      return res.status(200).json(characters);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des personnages :", error);
+      return res
+        .status(500)
+        .json({ error: "Erreur lors de la récupération des personnages." });
     }
-  );
+  });
 });
 /**
  * route pour trouver le personnage avec le id
