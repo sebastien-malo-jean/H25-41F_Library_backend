@@ -322,6 +322,7 @@ vocations.forEach((vocation) => {
     }
   });
 });
+
 /**
  * route pour trouver le personnage avec le id
  */
