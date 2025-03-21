@@ -273,7 +273,12 @@ let vocations = ["npc", "player", "monster"];
 vocations.forEach((vocation) => {
   router.get(`/vocations/${vocation}`, async (req, res) => {
     try {
-      let { limit = 10, start = 0, orderDirection = "desc" } = req.query;
+      let {
+        limit = 10,
+        start = 0,
+        orderBy = "name",
+        orderDirection = "desc",
+      } = req.query;
 
       limit = Number(limit);
       start = Number(start);
@@ -283,17 +288,28 @@ vocations.forEach((vocation) => {
       }
 
       console.log(
-        `Filtre: charVoc = ${vocation}, Tri: ${orderDirection}, Limite: ${limit}, Départ: ${start}`
+        `Filtre: charVoc = ${vocation}, Tri: ${orderBy}, Limite: ${limit}, Départ: ${start}`
       );
 
       const characters = [];
-      const docRefs = await db
+      const query = db
         .collection("characters")
-        .where("charVoc", "==", vocation) // Filtrer uniquement par charVoc
-        .orderBy("charVoc", orderDirection)
-        .offset(start)
-        .limit(limit)
-        .get();
+        .where("charVoc", "==", vocation);
+
+      let docRefs;
+      try {
+        docRefs = await query
+          .orderBy(orderBy, orderDirection)
+          .offset(start)
+          .limit(limit)
+          .get();
+      } catch (error) {
+        console.error("🔥 Erreur Firestore : Index manquant ?", error);
+        return res.status(500).json({
+          error: "Erreur Firestore : index manquant ?",
+          details: error.message,
+        });
+      }
 
       docRefs.forEach((doc) => {
         characters.push({ id: doc.id, ...doc.data() });
@@ -301,10 +317,8 @@ vocations.forEach((vocation) => {
 
       return res.status(200).json(characters);
     } catch (error) {
-      console.error("Erreur lors de la récupération des personnages :", error);
-      return res
-        .status(500)
-        .json({ error: "Erreur lors de la récupération des personnages." });
+      console.error("Erreur serveur :", error);
+      return res.status(500).json({ error: "Erreur interne du serveur." });
     }
   });
 });
