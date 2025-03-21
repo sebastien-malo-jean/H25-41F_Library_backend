@@ -84,6 +84,7 @@ router.get(
     check("orderDirection").escape().trim().optional().isIn(["asc", "desc"]),
   ],
   async (req, res) => {
+    console.log("Requête reçue avec filtres :", req.query);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -104,9 +105,12 @@ router.get(
       start = Number(start);
 
       let query = db.collection("characters");
-
+      console.log("Filtre actif - charVoc:", charVoc);
       // Appliquer les filtres dynamiquement
-      if (charVoc) query = query.where("charVoc", "==", charVoc);
+      if (charVoc) {
+        charVoc = charVoc.toLowerCase();
+        query = query.where("charVoc", "==", charVoc);
+      }
       if (gender) query = query.where("gender", "==", gender);
       if (characterClass) query = query.where("class", "==", characterClass);
       if (race) query = query.where("race", "==", race);
@@ -119,7 +123,7 @@ router.get(
       docRefs.forEach((doc) => {
         characters.push({ id: doc.id, ...doc.data() });
       });
-
+      console.log("Personnages trouvés :", characters);
       return res.status(200).json(characters);
     } catch (error) {
       console.error("Erreur lors de la récupération des personnages :", error);
