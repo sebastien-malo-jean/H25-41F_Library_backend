@@ -77,124 +77,103 @@ let validations = [
 /**
  * route GET pour trouver la liste de tous les personnages
  */
-router.get(
-  "/",
-  [
-    check("orderBy").escape().trim().optional().isLength({ max: 20 }),
-    check("orderDirection").escape().trim().optional().isIn(["asc", "desc"]),
-  ],
-  async (req, res) => {
-    console.log("Requête reçue avec filtres :", req.query);
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
-    try {
-      let {
-        limit = 100,
-        start = 0,
-        orderBy = "name",
-        orderDirection = "asc",
-        charVoc,
-        gender,
-        class: characterClass,
-        race,
-      } = req.query;
-
-      limit = Number(limit);
-      start = Number(start);
-
-      let query = db.collection("characters");
-
-      // Validation des filtres
-      const validVocations = ["npc", "player", "monster"];
-      const validGenders = ["man", "woman", "unknown"];
-      const validClasses = [
-        "Barbare",
-        "Barde",
-        "Chaman",
-        "Druide",
-        "Ensorceleur",
-        "Guerrier",
-        "Magicien",
-        "Moine",
-        "Paladin",
-        "Prêtre",
-        "Rôdeur",
-        "Roublard",
-      ];
-      const validRaces = [
-        "Humain",
-        "Aasimar",
-        "Thiefelin",
-        "Genasi",
-        "Elfe-des-Bois",
-        "Elfe-Sauvage",
-        "Nain",
-        "Duergar",
-        "Hobbit",
-        "Gnome",
-        "Demi-Elfe",
-        "Demi-Orque",
-        "Orque",
-        "Ogre",
-        "Gobelin",
-        "Kobold",
-        "Yuan-ti",
-      ];
-
-      if (charVoc) {
-        charVoc = charVoc.toLowerCase();
-        if (!validVocations.includes(charVoc)) {
-          return res.status(400).json({ error: "Vocation invalide." });
-        }
-        query = query.where("charVoc", "==", charVoc);
-      }
-
-      if (gender) {
-        if (!validGenders.includes(gender)) {
-          return res.status(400).json({ error: "Genre invalide." });
-        }
-        query = query.where("gender", "==", gender);
-      }
-
-      if (characterClass) {
-        if (!validClasses.includes(characterClass)) {
-          return res.status(400).json({ error: "Classe invalide." });
-        }
-        query = query.where("class", "==", characterClass);
-      }
-
-      if (race) {
-        if (!validRaces.includes(race)) {
-          return res.status(400).json({ error: "Race invalide." });
-        }
-        query = query.where("race", "==", race);
-      }
-
-      query = query.orderBy(orderBy, orderDirection).offset(start).limit(limit);
-
-      const characters = [];
-      const docRefs = await query.get();
-
-      docRefs.forEach((doc) => {
-        characters.push({ id: doc.id, ...doc.data() });
-      });
-
-      console.log("Personnages trouvés :", characters);
-      return res.status(200).json(characters);
-    } catch (error) {
-      console.error(
-        "Erreur lors de la récupération des personnages :",
-        error.message
-      );
-      return res
-        .status(500)
-        .json({ error: "Erreur lors de la récupération des personnages." });
-    }
+router.get("/", async (req, res) => {
+  console.log("Requête reçue avec filtres :", req.query);
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
   }
-);
+
+  try {
+    let {
+      limit = 100,
+      start = 0,
+      orderBy = "name",
+      orderDirection = "asc",
+      charVoc,
+      gender,
+      class: characterClass,
+      race,
+    } = req.query;
+
+    limit = Number(limit);
+    start = Number(start);
+
+    let query = db.collection("characters");
+
+    // Validation des filtres
+    const validVocations = ["npc", "player", "monster"];
+    const validGenders = ["man", "woman", "unknown"];
+    const validClasses = [
+      "Barbare",
+      "Barde",
+      "Chaman",
+      "Druide",
+      "Ensorceleur",
+      "Guerrier",
+      "Magicien",
+      "Moine",
+      "Paladin",
+      "Prêtre",
+      "Rôdeur",
+      "Roublard",
+    ];
+    const validRaces = [
+      "Humain",
+      "Aasimar",
+      "Thiefelin",
+      "Genasi",
+      "Elfe-des-Bois",
+      "Elfe-Sauvage",
+      "Nain",
+      "Duergar",
+      "Hobbit",
+      "Gnome",
+      "Demi-Elfe",
+      "Demi-Orque",
+      "Orque",
+      "Ogre",
+      "Gobelin",
+      "Kobold",
+      "Yuan-ti",
+    ];
+
+    // Validation et ajout des filtres
+    if (charVoc && validVocations.includes(charVoc.toLowerCase())) {
+      query = query.where("charVoc", "==", charVoc.toLowerCase());
+    }
+    if (gender && validGenders.includes(gender)) {
+      query = query.where("gender", "==", gender);
+    }
+    if (characterClass && validClasses.includes(characterClass)) {
+      query = query.where("class", "==", characterClass);
+    }
+    if (race && validRaces.includes(race)) {
+      query = query.where("race", "==", race);
+    }
+
+    // Appliquer le tri et la pagination
+    query = query.orderBy(orderBy, orderDirection).offset(start).limit(limit);
+
+    const characters = [];
+    const docRefs = await query.get();
+
+    docRefs.forEach((doc) => {
+      characters.push({ id: doc.id, ...doc.data() });
+    });
+
+    console.log("Personnages trouvés :", characters);
+    return res.status(200).json(characters);
+  } catch (error) {
+    console.error(
+      "Erreur lors de la récupération des personnages :",
+      error.message
+    );
+    return res
+      .status(500)
+      .json({ error: "Erreur lors de la récupération des personnages." });
+  }
+});
 
 /**
  * route pour voir la liste de tous les personnages trier par les statistiques
