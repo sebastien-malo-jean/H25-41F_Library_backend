@@ -45,7 +45,7 @@ router.post("/inscription", validations, async (req, res) => {
     const hash = await bcrypt.hash(password, 10);
     const userRef = await db
       .collection("users")
-      .add({ name, email, password: hash });
+      .add({ name, email, password: hash, role });
 
     return res
       .status(201)
