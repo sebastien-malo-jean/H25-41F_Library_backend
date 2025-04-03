@@ -19,6 +19,8 @@ const validations = [
     .notEmpty()
     .isLength({ min: 8 })
     .withMessage("Le mot de passe doit contenir au moins 8 caractères"),
+  check("role").isNumeric().withMessage("le role doit etre un chiffre."),
+  ,
 ];
 
 // Inscription
@@ -31,7 +33,7 @@ router.post("/inscription", validations, async (req, res) => {
         .json({ msg: "Données invalides", erreurs: erreurValidation.array() });
     }
 
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role = 1 } = req.body;
     const userRefs = await db
       .collection("users")
       .where("email", "==", email)
