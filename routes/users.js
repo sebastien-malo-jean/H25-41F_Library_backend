@@ -20,7 +20,6 @@ const validations = [
     .isLength({ min: 8 })
     .withMessage("Le mot de passe doit contenir au moins 8 caractères"),
   check("role").isNumeric().withMessage("le role doit etre un chiffre."),
-  ,
 ];
 
 // Inscription
