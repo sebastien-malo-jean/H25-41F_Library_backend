@@ -31,7 +31,7 @@ router.post("/inscription", validations, async (req, res) => {
         .json({ msg: "Données invalides", erreurs: erreurValidation.array() });
     }
 
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
     const userRefs = await db
       .collection("users")
       .where("email", "==", email)
