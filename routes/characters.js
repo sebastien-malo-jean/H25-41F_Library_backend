@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const db = require("../config/db");
 const { check, validationResult } = require("express-validator");
+const auth = require("../middleware/auth");
 
 // validations
 const validId = [
@@ -335,8 +336,9 @@ router.get("/:id", validId, async (req, res) => {
  * route pour enrengistrer les informations du personnages dans la bdd.
  */
 
-router.post("/", validations, async (req, res) => {
+router.post("/", auth, validations, async (req, res) => {
   const errors = validationResult(req);
+  console.log(errors);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }

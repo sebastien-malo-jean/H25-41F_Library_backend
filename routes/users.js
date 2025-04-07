@@ -83,6 +83,7 @@ router.post("/connection", async (req, res) => {
     if (!isMatch) {
       return res.status(400).json({ msg: "Email ou mot de passe incorrect" });
     }
+    delete userData.password; // Supprimer le mot de passe du résultat
 
     const token = jwt.sign(
       {
@@ -101,7 +102,5 @@ router.post("/connection", async (req, res) => {
     return res.status(500).json({ msg: "Erreur serveur" });
   }
 });
-
-module.exports = router;
 
 module.exports = router;
